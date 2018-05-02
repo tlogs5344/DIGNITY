@@ -1,0 +1,76 @@
+pragma solidity ^0.4.21;
+
+contract owned {
+    address public owner;
+    
+    function owned() public {
+        owner = msg.sender;
+    }
+    
+    modifier onlyOwner {
+            require(msg.sender == owner);
+            _;
+    }
+    
+    function transferOwnership(address newOwner) onlyOwner public {
+            owner = newOwner;
+    }
+        
+    function kill () onlyOwner external {
+        selfdestruct(owner);
+    }
+}
+
+contract WHITELIST is owned {
+    address public whitelist;
+    bool public whitelisted;
+    
+    mapping (address => bool) public Whitelist;
+    
+    function WHITELIST (address whitelistAddress, bool addWhitelisted) internal {
+        Whitelist[whitelistAddress] = addWhitelisted;
+    }
+    
+    function ADDWHITELIST(address whitelistedAddress, bool addWhitelisted) onlyOwner external {
+        Whitelist[whitelistedAddress] = addWhitelisted;
+    }
+    
+    function REMOVEWHITELIST(address removeAddress, bool removeWhitelisted) onlyOwner external {
+        Whitelist[removeAddress] = removeWhitelisted;
+    }
+    
+    modifier isWhitelisted {
+        require(Whitelist[msg.sender]);
+        _; 
+    }
+    
+    event whiteListed(address indexed whitelistedAddress);
+}
+
+contract DIGNIFIEDLIST is owned, WHITELIST {
+    address public Dignifiedlist;
+    bool public dignified;
+    uint256 public balance;
+    
+    mapping (address => bool) public DignifiedList;
+    mapping (address => uint256) public DignityBalance;
+    
+    function DIGNIFIEDLIST(address _dignifiedAddress, bool _addDignified) internal {
+        DignifiedList[_dignifiedAddress] == _addDignified;
+    }
+    
+    function addDignifiedList(address _dignifiedAddress, bool _addDignified) isWhitelisted public {
+        DignifiedList[_dignifiedAddress] == _addDignified;
+    }
+    
+    function removeDignifiedList(address _dignifiedAddress, bool _removeDignified) isWhitelisted external {
+         DignifiedList[_dignifiedAddress] == _removeDignified;       
+    }
+    
+    modifier isDignified {
+            require(DignifiedList[msg.sender] == true);
+            _;
+    }
+    
+    event Dignified(address indexed dignifiedAddress);
+}
