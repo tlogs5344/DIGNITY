@@ -1,0 +1,27 @@
+pragma solidity ^0.4.21;
+
+contract VENDORLIST is owned {
+    address public vendorList;
+    bool public vendor;
+    
+    mapping (address => bool) public Vendorlist;
+    
+    function VENDORLIST(address _vendorAddress, bool _addVendor) internal {
+        Vendorlist[_vendorAddress] == _addVendor;
+    }
+    
+    function addvendor (address _vendorAddress, bool _addVendor) onlyOwner public {
+        Vendorlist[_vendorAddress] == _addVendor;
+    }
+    
+    function removeVendor (address _vendorAddress, bool _removeVendor) onlyOwner external {
+        Vendorlist[_vendorAddress] == _removeVendor;
+    }
+    
+    modifier isVendor {
+        require(Vendorlist[msg.sender] == true);
+        _;
+    }
+    
+    event vendorAdded(address indexed vendorAddress);
+}
