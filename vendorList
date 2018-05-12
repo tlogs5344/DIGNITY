@@ -1,21 +1,43 @@
 pragma solidity ^0.4.21;
 
+contract owned {
+    mapping (address => bool) public Owner;
+    
+    function owned() public {
+        Owner[msg.sender] = true;
+    }
+    
+    modifier onlyOwner {
+            require(Owner[msg.sender] == true);
+            _;
+    }
+    
+    function transferOwnership(address newOwner, address oldOwner) onlyOwner public {
+            require(Owner[oldOwner] = true);
+            Owner[newOwner] = true;
+            Owner[oldOwner] = false;
+    }
+        
+    function kill () onlyOwner external {
+        require(Owner[msg.sender] = true);
+        selfdestruct(msg.sender);
+    }
+}
+
 contract VENDORLIST is owned {
-    address public vendorList;
-    bool public vendor;
     
     mapping (address => bool) public Vendorlist;
     
-    function VENDORLIST(address _vendorAddress, bool _addVendor) internal {
-        Vendorlist[_vendorAddress] == _addVendor;
+    function VENDORLIST() public {
+        Vendorlist[msg.sender] == true;
     }
     
-    function addvendor (address _vendorAddress, bool _addVendor) onlyOwner public {
-        Vendorlist[_vendorAddress] == _addVendor;
+    function addVendor (address _addVendor) onlyOwner public {
+        Vendorlist[_addVendor] == true;
     }
     
-    function removeVendor (address _vendorAddress, bool _removeVendor) onlyOwner external {
-        Vendorlist[_vendorAddress] == _removeVendor;
+    function removeVendor (address _removeVendor) onlyOwner external {
+        Vendorlist[_removeVendor] == false;
     }
     
     modifier isVendor {
@@ -23,5 +45,7 @@ contract VENDORLIST is owned {
         _;
     }
     
-    event vendorAdded(address indexed vendorAddress);
+    event addVendor(address indexed _addVendor);
+    
+    event removeVendor(address indexed _removeVendor);
 }
