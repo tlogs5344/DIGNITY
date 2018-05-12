@@ -1,23 +1,26 @@
 pragma solidity ^0.4.21;
 
 contract owned {
-    address owner;
+    mapping (address => bool) public Owner;
     
-    function owned() external {
-        owner = msg.sender;
+    function owned() public {
+        Owner[msg.sender] = true;
     }
     
     modifier onlyOwner {
-            require(msg.sender == owner);
+            require(Owner[msg.sender] == true);
             _;
     }
     
-    function transferOwnership(address newOwner) onlyOwner public {
-            owner = newOwner;
+    function transferOwnership(address newOwner, address oldOwner) onlyOwner public {
+            require(Owner[oldOwner] = true);
+            Owner[newOwner] = true;
+            Owner[oldOwner] = false;
     }
         
     function kill () onlyOwner external {
-        selfdestruct(owner);
+        require(Owner[msg.sender] = true);
+        selfdestruct(msg.sender);
     }
 }
 
@@ -25,7 +28,7 @@ contract WHITELIST is owned {
     
     mapping (address => bool) public Whitelist;
     
-    function WHITELIST (address whitelistAddress) external {
+    function WHITELIST () public {
         Whitelist[msg.sender] = true;
     }
     
@@ -38,7 +41,7 @@ contract WHITELIST is owned {
     }
     
     modifier isWhitelisted {
-        require(Whitelist[msg.sender]) == true;
+        require(Whitelist[msg.sender] == true);
         _; 
     }
     
