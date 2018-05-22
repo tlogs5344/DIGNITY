@@ -1,26 +1,41 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 contract WHITELIST {
+    address owner;
+
+    mapping(address => bool) public DignityWhitelist;
+
+    event Enable(address whitelisted)
     
-    mapping(address => bool) public Whitelist;
-    
+    event Remove(address removed)
+
     modifier isWhitelisted() {
-        require(Whitelist[msg.sender] == true);
+        require(DignityWhitelist[msg.sender] == true);
         _; 
     }
-    
-    function WHITELIST (address initialAccount) public {
-        if(initialAccount == 0x0) {
-            initialAccount = msg.sender;
-        }
-        enableWhitelist(msg.sender);
+
+    modifier isOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function WHITELIST() public {
+        owner = msg.sender;
+        DignityWhitelist[msg.sender] = true;
+    }
+
+    function enableWhitelist(address whitelistAddress) external isOwner {
+        DignityWhitelist[whitelistAddress] = true;
+        emit Enable(whitelistAddress);
+    }
+
+    function disableWhitelist(address removeAddress) external isOwner {
+        require(removeAddress != owner);
+        DignityWhitelist[removeAddress] = false;
+        emit Remove(removeAddress);
     }
     
-    function enableWhitelist(address whitelistAddress) external {
-        Whitelist[whitelistAddress] = true;
-    }
-    
-    function disableWhitelist(address removeAddress) external {
-        Whitelist[removeAddress] = false;
+    function kill() external isOwner {
+        selfdestruct(msg.sender);
     }
 }
