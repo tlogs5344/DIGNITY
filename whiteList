@@ -5,9 +5,9 @@ contract WHITELIST {
 
     mapping(address => bool) public DignityWhitelist;
 
-    event Enable(address whitelisted)
+    event Enable(address whitelisted);
     
-    event Remove(address removed)
+    event Remove(address removed);
 
     modifier isWhitelisted() {
         require(DignityWhitelist[msg.sender] == true);
