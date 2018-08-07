@@ -1,0 +1,40 @@
+pragma solidity ^0.4.22;
+contract owned {
+    address owner = msg.sender;
+
+    modifier onlyOwner {
+        require(
+            msg.sender == owner,
+            "Only owner can call this function."
+        );
+        _;
+    }
+}
+
+contract priced {
+    modifier costs(uint price) {
+        assert (msg.value >= price); 
+        _;
+        }
+    }
+
+contract ReadingList is owned, priced {
+    uint price = 2000000000000000;
+    
+    struct Reader {
+      address adr;
+    }
+    
+    mapping (address => Reader) public readerAddresses;
+    
+    function becomeReader() public payable costs(price) {
+        readerAddresses[msg.sender].adr = msg.sender;
+    }
+
+    function changePrice(uint _price) public onlyOwner {
+        price = _price;
+    }
+}
+    
+
+
