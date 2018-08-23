@@ -19,22 +19,37 @@ contract priced {
     }
 
 contract ReadingList is owned, priced {
-    uint price = 2000000000000000;
+    uint price = 200000000000000;
     
-    struct Reader {
-      address adr;
+    struct Reader{
+        address adr;
+        bool rdr;
     }
     
     mapping (address => Reader) public readerAddresses;
     
+    modifier onlyReader {
+        assert (readerAddresses[msg.sender].rdr = true);
+        _;
+        }
+    
     function becomeReader() public payable costs(price) {
-        readerAddresses[msg.sender].adr = msg.sender;
+        readerAddresses[msg.sender].rdr = true;
     }
 
     function changePrice(uint _price) public onlyOwner {
         price = _price;
     }
 }
+
+contract Taurus is owned, priced, ReadingList {
+    string text = "Chapter 1";
     
-
-
+    function read() onlyReader public constant returns(string) {
+        return text;
+    }
+    
+    function changeText(string _newtext) public onlyOwner {
+        text = _newtext;
+    }
+}
