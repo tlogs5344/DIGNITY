@@ -21,40 +21,20 @@ contract owned {
     }
 }
 
-contract VENDORLIST is owned {
-
-    mapping (address => bool) public Vendorlist;
-    
-    function addvendor(address _vendorAddress) onlyOwner external {
-        Vendorlist[_vendorAddress] = true;
-    }
-    
-    function removeVendor(address _vendorAddress) onlyOwner external {
-        Vendorlist[_vendorAddress] = false;
-    }
-    
-    modifier isVendor {
-        require(Vendorlist[msg.sender] == true);
-        _;
-    }
-    
-    event vendorAdded(address indexed vendorAddress);
-}
-
 contract WHITELIST is owned {
 
-    mapping (address => bool) public Whitelist;
+    mapping (address => bool) public whiteListed;
     
     function ADDWHITELIST(address whitelistedAddress) onlyOwner external {
-        Whitelist[whitelistedAddress] = true;
+        whiteListed[whitelistedAddress] = true;
     }
     
     function REMOVEWHITELIST(address removeAddress) onlyOwner external {
-        Whitelist[removeAddress] = false;
+        whiteListed[removeAddress] = false;
     }
     
     modifier isWhitelisted {
-        require(Whitelist[msg.sender]);
+        require(whiteListed[msg.sender]);
         _; 
     }
     
@@ -81,7 +61,7 @@ contract DIGNIFIEDLIST is owned, WHITELIST {
     event Dignified(address indexed dignifiedAddress);
 }
 
-contract DIGNITY is owned, VENDORLIST, WHITELIST, DIGNIFIEDLIST { 
+contract DIGNITY is DIGNIFIEDLIST { 
     string public name;
     string public symbol;
     uint8 public decimals = 18;
@@ -93,9 +73,7 @@ contract DIGNITY is owned, VENDORLIST, WHITELIST, DIGNIFIEDLIST {
     mapping (address => uint256) public balanceOf;
     mapping (address => mapping (address => uint256)) public allowance;
     mapping (address => bool) public frozenAccount;
-    mapping (address => bool) public WhiteList;
-    mapping (address => bool) public VendorList;
-    mapping (address => bool) public DignifiedList;
+    mapping (address => bool) public Vendorlisted;
     
     event Spend(address indexed _from, address indexed _to, uint256 _value);
     
@@ -107,6 +85,8 @@ contract DIGNITY is owned, VENDORLIST, WHITELIST, DIGNIFIEDLIST {
         
     event Redeem(address indexed from, uint256 redeemed, uint256 value);
 
+    event vendorAdded(address indexed vendorAddress);
+    
     constructor (
  
         uint256 initialSupply
@@ -114,11 +94,11 @@ contract DIGNITY is owned, VENDORLIST, WHITELIST, DIGNIFIEDLIST {
         public { 
         balanceOf[msg.sender] = initialSupply;
         totalSupply = initialSupply;
-        initialSupply == 0;
+        initialSupply = 0;
         }
 
-    function spend(address _to, uint256 _value) public isDignified{
-        require(VendorList[_to]);
+    function spend(address _to, uint256 _value) public isDignified {
+        require(Vendorlisted[msg.sender] = true);
         require(balanceOf[msg.sender] >= _value);
         balanceOf[msg.sender] -= _value;
         balanceOf[_to] += _value;
@@ -133,7 +113,7 @@ contract DIGNITY is owned, VENDORLIST, WHITELIST, DIGNIFIEDLIST {
         return amount; 
     }
 
-    function redeem(uint256 _value) public isVendor returns(uint amount) {
+    function redeem(uint256 _value) public returns (uint amount) {
         amount = _value * buyPrice;
         require(balanceOf[msg.sender] >= _value);
         balanceOf[msg.sender] -= _value;
@@ -144,4 +124,18 @@ contract DIGNITY is owned, VENDORLIST, WHITELIST, DIGNIFIEDLIST {
         return amount;
     }
     
+    function addvendor(address _vendorAddress) onlyOwner external {
+        Vendorlisted[_vendorAddress] = true;
+    }
+    
+    function removeVendor(address _vendorAddress) onlyOwner external {
+        Vendorlisted[_vendorAddress] = false;
+    }
+    
+    modifier isVendor {
+            require(Vendorlisted[msg.sender] = true);
+            _;
+    }
+    
 }
+    
