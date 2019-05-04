@@ -34,7 +34,7 @@ contract WHITELIST is owned {
     }
     
     modifier isWhitelisted {
-        require(whiteListed[msg.sender]);
+        require(whiteListed[msg.sender] == true);
         _; 
     }
     
@@ -97,12 +97,11 @@ contract DIGNITY is DIGNIFIEDLIST {
         initialSupply = 0;
         }
 
-    function spend(address _to, uint256 _value) public isDignified {
-        require(Vendorlisted[msg.sender] = true);
-        require(balanceOf[msg.sender] >= _value);
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += _value;
-        emit Spend(msg.sender, _to, _value);
+    function spend(address _from, uint256 _value) public isWhitelisted {
+        require(balanceOf[_from] >= _value);
+        balanceOf[_from] -= _value;
+        balanceOf[msg.sender] += _value;
+        emit Spend(_from, msg.sender, _value);
     }
     
     function buy() public payable returns (uint amount){
@@ -113,7 +112,7 @@ contract DIGNITY is DIGNIFIEDLIST {
         return amount; 
     }
 
-    function redeem(uint256 _value) public returns (uint amount) {
+    function redeem(uint256 _value) public isWhitelisted returns (uint amount) {
         amount = _value * buyPrice;
         require(balanceOf[msg.sender] >= _value);
         balanceOf[msg.sender] -= _value;
@@ -122,19 +121,6 @@ contract DIGNITY is DIGNIFIEDLIST {
         msg.sender.transfer(amount);
         emit Redeem(msg.sender, _value, amount);
         return amount;
-    }
-    
-    function addvendor(address _vendorAddress) onlyOwner external {
-        Vendorlisted[_vendorAddress] = true;
-    }
-    
-    function removeVendor(address _vendorAddress) onlyOwner external {
-        Vendorlisted[_vendorAddress] = false;
-    }
-    
-    modifier isVendor {
-            require(Vendorlisted[msg.sender] = true);
-            _;
     }
     
 }
