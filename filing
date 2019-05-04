@@ -58,6 +58,11 @@ contract RESTRICTEDOWNER is RTVCADMIN, WHITELISTEDTRANSFEROR {
             _;
     }
     
+    modifier noSpend {
+            require(DignifiedList[msg.sender] == false);
+            _;
+    }
+    
     event Dignified(address indexed dignifiedAddress);
 }
 
@@ -76,6 +81,8 @@ contract RTVC is RESTRICTEDOWNER {
     mapping (address => bool) public Vendorlisted;
     
     event Spend(address indexed _from, address indexed _to, uint256 _value);
+    
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
     
     event FrozenFunds(address target, bool frozen);
     
@@ -96,6 +103,15 @@ contract RTVC is RESTRICTEDOWNER {
         totalSupply = initialSupply;
         initialSupply = 0;
         }
+
+
+    function transfer(address _to, uint256 _value) public noSpend {
+        assert(balanceOf[msg.sender] >= _value);
+        address _from = msg.sender;
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        emit Transfer(_from, _to, _value);
+    }
 
     function spend(address _from, uint256 _value) public isWhitelisted {
         assert(balanceOf[_from] >= _value);
