@@ -49,21 +49,17 @@ contract RESTRICTEDOWNER is RTVCADMIN, WHITELISTEDTRANSFEROR {
         RestrictedOwnerList[_restrictedOwnerAddress] = true;
     }
     
-    function removeDignifiedList(address _dignifiedAddress) isWhitelistedTransferor external {
+    function removeRestrictedOwnerList(address _dignifiedAddress) isWhitelistedTransferor external {
          RestrictedOwnerList[_dignifiedAddress] = false;       
     }
     
-    modifier isDignified {
-            require(RestrictedOwnerList[msg.sender] == true);
-            _;
-    }
+    event RestrictedOwner(address indexed restrictedOwnerAddress);
     
     modifier noTransfer {
             require(RestrictedOwnerList[msg.sender] == false);
             _;
     }
     
-    event RestrictedOwner(address indexed restrictedOwnerAddress);
 }
 
 contract RTVC is RESTRICTEDOWNER { 
