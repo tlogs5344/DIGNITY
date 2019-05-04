@@ -1,6 +1,6 @@
 pragma solidity ^0.4.21;
 
-contract owned {
+contract RTVCADMIN {
     address public owner;
     
     constructor () public {
@@ -21,7 +21,7 @@ contract owned {
     }
 }
 
-contract WHITELISTEDTRANSFEROR is owned {
+contract WHITELISTEDTRANSFEROR is RTVCADMIN {
 
     mapping (address => bool) public whiteListed;
     
@@ -41,7 +41,7 @@ contract WHITELISTEDTRANSFEROR is owned {
     event whiteListed(address indexed whitelistedAddress);
 }
 
-contract RESTRICTEDOWNER is owned, WHITELISTEDTRANSFEROR {
+contract RESTRICTEDOWNER is RTVCADMIN, WHITELISTEDTRANSFEROR {
     
     mapping (address => bool) public DignifiedList;
     
