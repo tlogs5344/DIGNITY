@@ -21,7 +21,7 @@ contract owned {
     }
 }
 
-contract WHITELIST is owned {
+contract WHITELISTEDTRANSFEROR is owned {
 
     mapping (address => bool) public whiteListed;
     
@@ -41,7 +41,7 @@ contract WHITELIST is owned {
     event whiteListed(address indexed whitelistedAddress);
 }
 
-contract DIGNIFIEDLIST is owned, WHITELIST {
+contract RESTRICTEDOWNER is owned, WHITELISTEDTRANSFEROR {
     
     mapping (address => bool) public DignifiedList;
     
@@ -61,7 +61,7 @@ contract DIGNIFIEDLIST is owned, WHITELIST {
     event Dignified(address indexed dignifiedAddress);
 }
 
-contract DIGNITY is DIGNIFIEDLIST { 
+contract RTVC is RESTRICTEDOWNER { 
     string public name;
     string public symbol;
     uint8 public decimals = 18;
