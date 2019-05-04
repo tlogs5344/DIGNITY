@@ -1,69 +1,69 @@
 pragma solidity ^0.4.21;
 
 contract RTVCADMIN {
-    address public owner;
+    address public admin;
     
     constructor () public {
-        owner = msg.sender;
+        admin = msg.sender;
     }
     
-    modifier onlyOwner {
-            require(msg.sender == owner);
+    modifier onlyAdmin {
+            require(msg.sender == admin);
             _;
     }
     
-    function transferOwnership(address newOwner) onlyOwner public {
-            owner = newOwner;
+    function transferAdmin(address newAdmin) onlyAdmin public {
+            admin = newAdmin;
     }
         
-    function kill () onlyOwner external {
-        selfdestruct(owner);
+    function kill () onlyAdmin external {
+        selfdestruct(admin);
     }
 }
 
 contract WHITELISTEDTRANSFEROR is RTVCADMIN {
 
-    mapping (address => bool) public whiteListed;
+    mapping (address => bool) public whiteListedTransferor;
     
-    function ADDWHITELIST(address whitelistedAddress) onlyOwner external {
-        whiteListed[whitelistedAddress] = true;
+    function ADDWHITELISTEDTRANSFEROR(address whitelistedTransferorAddress) onlyAdmin external {
+        whiteListedTransferor[whitelistedTransferorAddress] = true;
     }
     
-    function REMOVEWHITELIST(address removeAddress) onlyOwner external {
-        whiteListed[removeAddress] = false;
+    function REMOVEWHITELISTEDTRANSFEROR(address removeAddress) onlyAdmin external {
+        whiteListedTransferor[removeAddress] = false;
     }
     
-    modifier isWhitelisted {
-        require(whiteListed[msg.sender] == true);
+    modifier isWhitelistedTransferor {
+        require(whiteListedTransferor[msg.sender] == true);
         _; 
     }
     
-    event whiteListed(address indexed whitelistedAddress);
+    event whiteListedTransferor(address indexed whitelistedTransferorAddress);
 }
 
 contract RESTRICTEDOWNER is RTVCADMIN, WHITELISTEDTRANSFEROR {
     
-    mapping (address => bool) public DignifiedList;
+    mapping (address => bool) public RestrictedOwnerList;
     
-    function addDignifiedList(address _dignifiedAddress) isWhitelisted public {
-        DignifiedList[_dignifiedAddress] = true;
+    function addRestrictedOwnerList(address _restrictedOwnerAddress) isWhitelistedTransferor public {
+        RestrictedOwnerList[_restrictedOwnerAddress] = true;
     }
     
-    function removeDignifiedList(address _dignifiedAddress) isWhitelisted external {
-         DignifiedList[_dignifiedAddress] = false;       
+    function removeDignifiedList(address _dignifiedAddress) isWhitelistedTransferor external {
+         RestrictedOwnerList[_dignifiedAddress] = false;       
     }
     
     modifier isDignified {
-            require(DignifiedList[msg.sender] == true);
+            require(RestrictedOwnerList[msg.sender] == true);
             _;
     }
     
-    modifier noSpend {
-            require(DignifiedList[msg.sender] == false);
+    modifier noTransfer {
+            require(RestrictedOwnerList[msg.sender] == false);
             _;
     }
     
-    event Dignified(address indexed dignifiedAddress);
+    event RestrictedOwner(address indexed restrictedOwnerAddress);
 }
 
 contract RTVC is RESTRICTEDOWNER { 
@@ -105,7 +105,7 @@ contract RTVC is RESTRICTEDOWNER {
         }
 
 
-    function transfer(address _to, uint256 _value) public noSpend {
+    function transfer(address _to, uint256 _value) public noTransfer {
         assert(balanceOf[msg.sender] >= _value);
         address _from = msg.sender;
         balanceOf[msg.sender] -= _value;
@@ -113,7 +113,7 @@ contract RTVC is RESTRICTEDOWNER {
         emit Transfer(_from, _to, _value);
     }
 
-    function spend(address _from, uint256 _value) public isWhitelisted {
+    function spend(address _from, uint256 _value) public isWhitelistedTransferor {
         assert(balanceOf[_from] >= _value);
         balanceOf[_from] -= _value;
         balanceOf[msg.sender] += _value;
@@ -128,7 +128,7 @@ contract RTVC is RESTRICTEDOWNER {
         return amount; 
     }
 
-    function redeem(uint256 _value) public isWhitelisted returns (uint amount) {
+    function redeem(uint256 _value) public isWhitelistedTransferor returns (uint amount) {
         amount = _value * buyPrice;
         assert(balanceOf[msg.sender] >= _value);
         balanceOf[msg.sender] -= _value;
