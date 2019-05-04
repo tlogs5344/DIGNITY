@@ -1,0 +1,126 @@
+pragma solidity ^0.4.21;
+
+contract owned {
+    address public owner;
+    
+    constructor () public {
+        owner = msg.sender;
+    }
+    
+    modifier onlyOwner {
+            require(msg.sender == owner);
+            _;
+    }
+    
+    function transferOwnership(address newOwner) onlyOwner public {
+            owner = newOwner;
+    }
+        
+    function kill () onlyOwner external {
+        selfdestruct(owner);
+    }
+}
+
+contract WHITELIST is owned {
+
+    mapping (address => bool) public whiteListed;
+    
+    function ADDWHITELIST(address whitelistedAddress) onlyOwner external {
+        whiteListed[whitelistedAddress] = true;
+    }
+    
+    function REMOVEWHITELIST(address removeAddress) onlyOwner external {
+        whiteListed[removeAddress] = false;
+    }
+    
+    modifier isWhitelisted {
+        require(whiteListed[msg.sender] == true);
+        _; 
+    }
+    
+    event whiteListed(address indexed whitelistedAddress);
+}
+
+contract DIGNIFIEDLIST is owned, WHITELIST {
+    
+    mapping (address => bool) public DignifiedList;
+    
+    function addDignifiedList(address _dignifiedAddress) isWhitelisted public {
+        DignifiedList[_dignifiedAddress] = true;
+    }
+    
+    function removeDignifiedList(address _dignifiedAddress) isWhitelisted external {
+         DignifiedList[_dignifiedAddress] = false;       
+    }
+    
+    modifier isDignified {
+            require(DignifiedList[msg.sender] == true);
+            _;
+    }
+    
+    event Dignified(address indexed dignifiedAddress);
+}
+
+contract DIGNITY is DIGNIFIEDLIST { 
+    string public name;
+    string public symbol;
+    uint8 public decimals = 18;
+    uint256 public totalSupply;
+    uint256 public sellPrice;
+    uint256 public buyPrice;
+    address public CentralMinter;
+    
+    mapping (address => uint256) public balanceOf;
+    mapping (address => mapping (address => uint256)) public allowance;
+    mapping (address => bool) public frozenAccount;
+    mapping (address => bool) public Vendorlisted;
+    
+    event Spend(address indexed _from, address indexed _to, uint256 _value);
+    
+    event FrozenFunds(address target, bool frozen);
+    
+    event Burn(address indexed from, uint256 value);
+    
+    event Buy(address indexed from, uint256 value);
+        
+    event Redeem(address indexed from, uint256 redeemed, uint256 value);
+
+    event vendorAdded(address indexed vendorAddress);
+    
+    constructor (
+ 
+        uint256 initialSupply
+        )
+        public { 
+        balanceOf[msg.sender] = initialSupply;
+        totalSupply = initialSupply;
+        initialSupply = 0;
+        }
+
+    function spend(address _from, uint256 _value) public isWhitelisted {
+        assert(balanceOf[_from] >= _value);
+        balanceOf[_from] -= _value;
+        balanceOf[msg.sender] += _value;
+        emit Spend(_from, msg.sender, _value);
+    }
+    
+    function buy() public payable returns (uint amount){
+        amount = msg.value / sellPrice;                    
+        totalSupply += amount;               
+        balanceOf[msg.sender] += amount;                  
+        emit Buy(msg.sender, amount);               
+        return amount; 
+    }
+
+    function redeem(uint256 _value) public isWhitelisted returns (uint amount) {
+        amount = _value * buyPrice;
+        assert(balanceOf[msg.sender] >= _value);
+        balanceOf[msg.sender] -= _value;
+        totalSupply -= _value;
+        emit Burn(msg.sender, _value);
+        msg.sender.transfer(amount);
+        emit Redeem(msg.sender, _value, amount);
+        return amount;
+    }
+    
+}
